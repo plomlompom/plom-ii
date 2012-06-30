@@ -1,8 +1,9 @@
 // plom-ii: plomlompom's ii fork
 // 
 // This file is licensed under the GPLv3; for details, see the file LICENSE or
-// <http://www.gnu.org/licenses/gpl-3.0.html>. Any substantial changes to the
-// ii original are (c)opyright 2012 Christian Heller <c.heller@plomlompom.de>.
+// <http://www.gnu.org/licenses/gpl-3.0.html>. Changes to the ii original are
+// (c)opyright 2012 Christian Heller <c.heller@plomlompom.de>
+// 
 // All work from the *original* ii as shown in the file ii.c is also covered by
 // the MIT/X Consortium License (see file LICENSE.old) and these copyrights:
 // (c)opyright 2005-2006 Anselm R. Garbe <garbeam@wmii.de>
