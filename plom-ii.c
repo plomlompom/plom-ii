@@ -1,30 +1,12 @@
-/* Starting point for plom-ii: the original ii.c (version 1.6), slightly
- * re-styled according to my own prefered conventions and thoroughly
- * commented to help my understanding of its internal workings.
- *                           -- Christian Heller <c.heller@plomlompom.de> */
-
-/* MIT/X Consortium License
- * 
- * (C)opyright MMV-MMVI Anselm R. Garbe <garbeam@wmii.de>
- * (C)opyright MMV-MMVIII Nico Golde <nico at ngolde dot de>
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE. */
+// plom-ii: plomlompom's ii fork
+// 
+// This file is licensed under the GPLv3; for details, see the file LICENSE or
+// <http://www.gnu.org/licenses/gpl-3.0.html>. Any substantial changes to the
+// ii original are (c)opyright 2012 Christian Heller <c.heller@plomlompom.de>.
+// All work from the *original* ii as shown in the file ii.c is also covered by
+// the MIT/X Consortium License (see file LICENSE.old) and these copyrights:
+// (c)opyright 2005-2006 Anselm R. Garbe <garbeam@wmii.de>
+// (c)opyright 2005-2008 Nico Golde <nico at ngolde dot de>
 
 #include <errno.h>
 #include <netdb.h>
