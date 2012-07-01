@@ -271,7 +271,7 @@ static void handle_channels_input(Channel *c) {
 
 static void handle_server_output() {
 // Interpret line from server; write message to appropriate outfile.
-  char *argv[TOK_LAST], *p = NULL, buf[PIPE_BUF], buf2[PIPE_BUF];
+  char *argv[TOK_LAST], *p = NULL, buf[PIPE_BUF];
   int i;
   for(i = 0; i < TOK_LAST; i++)
     argv[i] = NULL;
@@ -287,12 +287,11 @@ static void handle_server_output() {
       *p = 0;
       break; }
 
-  // Copy unmodified string into buf2[]/message[] -- to be used by print_out().
+  // Copy unmodified string into message[] -- to be used by print_out().
   for(i = 0; i < PIPE_BUF; i++) {
-    buf2[i] = buf[i];
+    message[i] = buf[i];
     if (buf[i] == 0)
       break; }
-  snprintf(message, PIPE_BUF, "%s", buf2);
 
   // In TOK_CMD, save chunks separated by ' ' as tokens TOK_CMD, TOK_CHAN, TOK_ARG, TOK_TXT.
   tokenize(&argv[TOK_START], TOK_LAST - TOK_START, buf, ' ');
