@@ -244,14 +244,42 @@ static void proc_channels_input(Channel *c, char *buf) {
   snprintf(message, PIPE_BUF, "%s\r\n", buf);
   write(irc, message, strlen(message)); }
 
-static void proc_server_cmd(char *buf) {
+static int read_line(int fd, size_t res_len, char *buf) {
+// Read into buf[] one line, up to size res_len. End line with '\0'.
+  size_t i = 0;
+  char c = 0;
+  do {
+    if(read(fd, &c, sizeof(char)) != sizeof(char))
+      return -1;
+    buf[i++] = c;
+  } while(c != '\n' && i < res_len);
+  buf[i - 1] = 0;
+  return 0; }
+
+static void handle_channels_input(Channel *c) {
+// Try to read line from fifo for processing; if failure, try to re-open channel fifo before removing channel.
+  static char buf[PIPE_BUF];
+  if(read_line(c->fd, PIPE_BUF, buf) == -1) {
+    close(c->fd);
+    int fd = open_channel(c->name);
+    if(fd != -1)
+      c->fd = fd;
+    else
+      rm_channel(c);
+    return; }
+  proc_channels_input(c, buf); }
+
+static void handle_server_output() {
 // Interpret line from server; if appropriate, send PONG to server or write message to appropriate outfile.
-  char *argv[TOK_LAST], *cmd = NULL, *p = NULL, buf2[PIPE_BUF];
+  char *argv[TOK_LAST], *cmd = NULL, *p = NULL, buf[PIPE_BUF], buf2[PIPE_BUF];
   int i;
   for(i = 0; i < TOK_LAST; i++)
     argv[i] = NULL;
-  if(!buf || *buf=='\0')
-    return;
+
+  // Try to read line from socket.
+  if(read_line(irc, PIPE_BUF, buf) == -1) {
+    perror("ii: remote host closed connection");
+    exit(EXIT_FAILURE); }
 
   // Replace '\r' with '\0'.
   for(p = buf; p && *p != 0; p++)
@@ -287,39 +315,6 @@ static void proc_server_cmd(char *buf) {
     print_out(0, message);
   else
     print_out(argv[TOK_CHAN], message); }
-
-static int read_line(int fd, size_t res_len, char *buf) {
-// Read into buf[] one line, up to size res_len. End line with '\0'.
-  size_t i = 0;
-  char c = 0;
-  do {
-    if(read(fd, &c, sizeof(char)) != sizeof(char))
-      return -1;
-    buf[i++] = c;
-  } while(c != '\n' && i < res_len);
-  buf[i - 1] = 0;
-  return 0; }
-
-static void handle_channels_input(Channel *c) {
-// Try to read line from fifo for processing; if failure, try to re-open channel fifo before removing channel.
-  static char buf[PIPE_BUF];
-  if(read_line(c->fd, PIPE_BUF, buf) == -1) {
-    close(c->fd);
-    int fd = open_channel(c->name);
-    if(fd != -1)
-      c->fd = fd;
-    else
-      rm_channel(c);
-    return; }
-  proc_channels_input(c, buf); }
-
-static void handle_server_output() {
-// Try to read line from socket, process it with proc_server_cmd().
-  static char buf[PIPE_BUF];
-  if(read_line(irc, PIPE_BUF, buf) == -1) {
-    perror("ii: remote host closed connection");
-    exit(EXIT_FAILURE); }
-  proc_server_cmd(buf); }
 
 static void run() {
 // Repeatedly check socket and fifo descriptors, handle input / output.
