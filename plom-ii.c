@@ -237,13 +237,6 @@ static void print_out(char *channel, char *buf) {
   fprintf(out, "%s %s\n", buft, buf);
   fclose(out); }
 
-static void proc_channels_input(Channel *c, char *buf) {
-// Translate buf[] into message to channel/user, write to outfile and socket.
-  snprintf(message, PIPE_BUF, "> %s", buf);
-  print_out(0, message);
-  snprintf(message, PIPE_BUF, "%s\r\n", buf);
-  write(irc, message, strlen(message)); }
-
 static int read_line(int fd, size_t res_len, char *buf) {
 // Read into buf[] one line, up to size res_len. End line with '\0'.
   size_t i = 0;
@@ -257,8 +250,10 @@ static int read_line(int fd, size_t res_len, char *buf) {
   return 0; }
 
 static void handle_channels_input(Channel *c) {
-// Try to read line from fifo for processing; if failure, try to re-open channel fifo before removing channel.
+// Try to read line from fifo, process.
   static char buf[PIPE_BUF];
+
+  // If channel fifo reading fails, try to re-open fifo before removing channel.
   if(read_line(c->fd, PIPE_BUF, buf) == -1) {
     close(c->fd);
     int fd = open_channel(c->name);
@@ -267,7 +262,12 @@ static void handle_channels_input(Channel *c) {
     else
       rm_channel(c);
     return; }
-  proc_channels_input(c, buf); }
+
+  // Translate buf[] into message to channel/user, write to outfile and socket.
+  snprintf(message, PIPE_BUF, "> %s", buf);
+  print_out(0, message);
+  snprintf(message, PIPE_BUF, "%s\r\n", buf);
+  write(irc, message, strlen(message)); }
 
 static void handle_server_output() {
 // Interpret line from server; if appropriate, send PONG to server or write message to appropriate outfile.
