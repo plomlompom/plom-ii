@@ -33,7 +33,7 @@
 #endif
 #define PING_TIMEOUT 300
 #define SERVER_PORT 6667
-enum { TOK_NICKSRV = 0, TOK_USER, TOK_CMD, TOK_ARG0, TOK_ARG1, TOK_ARG2, TOK_TEXT, TOK_CHAN, TOK_LAST };
+enum { TOK_CHAN = 0, TOK_START, TOK_CMD, TOK_ARG0, TOK_ARG1, TOK_ARG2, TOK_LAST };
 
 typedef struct Channel Channel;
 struct Channel {
@@ -260,33 +260,13 @@ static void proc_server_cmd(char *buf) {
     i++; }
   snprintf(message, PIPE_BUF, "%s", buf2);
 
-  // Use buf[] as cmd[], unless it opens with ':': Then use next chars as "NICKSRV" token and the chars after
-  // a first '!' as "USR" token; use as cmd[] what remains in buf[] after first whitespace sequence.
-  if(buf[0] == ':') {
-    if (!(p = strchr(buf, ' ')))
-      return;
-    *p = 0;
-    for(++p; *p == ' '; p++);
-    cmd = p;
-    argv[TOK_NICKSRV] = &buf[1];
-    if((p = strchr(buf, '!'))) {
-      *p = 0;
-      argv[TOK_USER] = ++p; } }
-  else
-    cmd = buf;
-
   // Replace '\r' with '\0'.
-  for(p = cmd; p && *p != 0; p++)
+  for(p = buf; p && *p != 0; p++)
     if(*p == '\r')
       *p = 0;
 
-  // If cmd[] contains ':', save next address as start of "TEXT" token.
-  if((p = strchr(cmd, ':'))) {
-    *p = 0;
-    argv[TOK_TEXT] = ++p; }
-
   // In TOK_CMD, save chunks separated by ' ' as tokens TOK_CMD, TOK_CHAN, TOK_ARG, TOK_TXT.
-  tokenize(&argv[TOK_CMD], (TOK_LAST - 1) - TOK_CMD, cmd, ' ');
+  tokenize(&argv[TOK_START], TOK_LAST - TOK_START, buf, ' ');
 
   // Set TOK_CHAN for certain TOK_CMDs from one of ARG[0-2].
   if (!strncmp(argv[TOK_CMD], "JOIN", 4) ||
