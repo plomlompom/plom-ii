@@ -225,12 +225,6 @@ static void print_out(char *channel, char *buf) {
   FILE *out = NULL;
   time_t t = time(0);
 
-  // Unset channel[] if buf[] contains "-!-" followed by it.
-  if(channel)
-    snprintf(server, sizeof(server), "-!- %s", channel);
-  if(strstr(buf, server))
-    channel="";
-
   // Create (if non-existant), open outfile.
   create_filepath(outfile, sizeof(outfile), channel, "out");
   if(!(out = fopen(outfile, "a")))
@@ -254,16 +248,22 @@ static void proc_channels_input(Channel *c, char *buf) {
 
 static void proc_server_cmd(char *buf) {
 // Interpret line from server; if appropriate, send PONG to server or write message to appropriate outfile.
-  char *argv[TOK_LAST], *cmd = NULL, *p = NULL;
+  char *argv[TOK_LAST], *cmd = NULL, *p = NULL, buf2[PIPE_BUF];
   int i;
   if(!buf || *buf=='\0')
     return;
   for(i = 0; i < TOK_LAST; i++)
     argv[i] = NULL;
 
+  // Copy unmodified string into buf2[]/message[] -- to be used by print_out().
+  for(i = 0; i < PIPE_BUF; ) {
+    buf2[i] = buf[i];
+    i++; }
+  snprintf(message, PIPE_BUF, "%s", buf2);
+
   // Use buf[] as cmd[], unless it opens with ':': Then use next chars as "NICKSRV" token and the chars after
   // a first '!' as "USR" token; use as cmd[] what remains in buf[] after first whitespace sequence.
-  if(buf[0] == ':') {		/* check prefix */
+  if(buf[0] == ':') {
     if (!(p = strchr(buf, ' ')))
       return;
     *p = 0;
@@ -276,9 +276,9 @@ static void proc_server_cmd(char *buf) {
   else
     cmd = buf;
 
-  // Replace '\r', '\n' chars in cmd[] with '\0'.
+  // Replace '\r' with '\0'.
   for(p = cmd; p && *p != 0; p++)
-    if(*p == '\r' || *p == '\n')
+    if(*p == '\r')
       *p = 0;
 
   // If cmd[] contains ':', save next address as start of "TEXT" token.
@@ -289,57 +289,9 @@ static void proc_server_cmd(char *buf) {
   // In TOK_CMD, save chunks separated by ' ' as tokens TOK_CMD, [TOK_CHAN], [TOK_ARG], [TOK_TXT]. 
   tokenize(&argv[TOK_CMD], TOK_LAST - TOK_CMD, cmd, ' ');
 
-  // Do nothing if no TOK_CMD, or if "PONG" received.
-  if(!argv[TOK_CMD] || !strncmp("PONG", argv[TOK_CMD], 5)) {
-    return; }
-
-  // Answer "PING" with "PONG" followed by TOK_TEXT and leave.
-  else if(!strncmp("PING", argv[TOK_CMD], 5)) {
-    snprintf(message, PIPE_BUF, "PONG %s\r\n", argv[TOK_TEXT]);
-    write(irc, message, strlen(message));
-    return; }
-
-  // If no TOK_NICKSRV / TOK_USER, append TOK_ARG + TOK_TEXT directly to meta out file and leave.
-  else if(!argv[TOK_NICKSRV] || !argv[TOK_USER]) {
-    snprintf(message, PIPE_BUF, "%s%s", argv[TOK_ARG] ? argv[TOK_ARG] : "", argv[TOK_TEXT] ? argv[TOK_TEXT] : "");
-    print_out(0, message);
-    return; }
-
-  // If "ERROR" received, write error description into message[].
-  else if(!strncmp("ERROR", argv[TOK_CMD], 6))
-    snprintf(message, PIPE_BUF, "-!- error %s", argv[TOK_TEXT] ? argv[TOK_TEXT] : "unknown");
-
-  // Translate "JOIN" command to message, but only up to the first whitespace of the TOK_TEXT string.
-  else if(!strncmp("JOIN", argv[TOK_CMD], 5)) {
-    if(argv[TOK_TEXT] != NULL) {
-      p = strchr(argv[TOK_TEXT], ' ');
-      if(p)
-        *p = 0; }
-    argv[TOK_CHAN] = argv[TOK_TEXT];
-    snprintf(message, PIPE_BUF, "-!- %s(%s) has joined %s", argv[TOK_NICKSRV], argv[TOK_USER], argv[TOK_TEXT]); }
-
-  // Translate other commands to respective messages.
-  else if(!strncmp("PART", argv[TOK_CMD], 5)) {
-    snprintf(message, PIPE_BUF, "-!- %s(%s) has left %s", argv[TOK_NICKSRV], argv[TOK_USER], argv[TOK_CHAN]); }
-  else if(!strncmp("MODE", argv[TOK_CMD], 5))
-    snprintf(message, PIPE_BUF, "-!- %s changed mode/%s -> %s %s", argv[TOK_NICKSRV],
-             argv[TOK_CMD + 1] ? argv[TOK_CMD + 1] : "" , argv[TOK_CMD + 2]? argv[TOK_CMD + 2] : "", argv[TOK_CMD + 3] ? argv[TOK_CMD + 3] : "");
-  else if(!strncmp("QUIT", argv[TOK_CMD], 5))
-    snprintf(message, PIPE_BUF, "-!- %s(%s) has quit \"%s\"", argv[TOK_NICKSRV], argv[TOK_USER], argv[TOK_TEXT] ? argv[TOK_TEXT] : "");
-  else if(!strncmp("NICK", argv[TOK_CMD], 5))
-    snprintf(message, PIPE_BUF, "-!- %s changed nick to %s", argv[TOK_NICKSRV], argv[TOK_TEXT]);
-  else if(!strncmp("TOPIC", argv[TOK_CMD], 6))
-    snprintf(message, PIPE_BUF, "-!- %s changed topic to \"%s\"", argv[TOK_NICKSRV], argv[TOK_TEXT] ? argv[TOK_TEXT] : "");
-  else if(!strncmp("KICK", argv[TOK_CMD], 5))
-    snprintf(message, PIPE_BUF, "-!- %s kicked %s (\"%s\")", argv[TOK_NICKSRV], argv[TOK_ARG], argv[TOK_TEXT] ? argv[TOK_TEXT] : "");
-  else if(!strncmp("NOTICE", argv[TOK_CMD], 7))
-    snprintf(message, PIPE_BUF, "-!- \"%s\")", argv[TOK_TEXT] ? argv[TOK_TEXT] : "");
-  else if(!strncmp("PRIVMSG", argv[TOK_CMD], 8))
-    snprintf(message, PIPE_BUF, "<%s> %s", argv[TOK_NICKSRV], argv[TOK_TEXT] ? argv[TOK_TEXT] : "");
-
   // Write message to (if token provided) channel/user!=nick or to server outfile.
-  if(!argv[TOK_CHAN] || !strncmp(argv[TOK_CHAN], nick, strlen(nick)))
-    print_out(argv[TOK_NICKSRV], message);
+  if(!argv[TOK_CHAN] || !strncmp(argv[TOK_CHAN], nick, strlen(nick)) || *argv[TOK_CHAN] == '*')
+    print_out(0, message);
   else
     print_out(argv[TOK_CHAN], message); }
 
