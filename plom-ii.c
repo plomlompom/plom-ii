@@ -250,10 +250,11 @@ static void proc_server_cmd(char *buf) {
 // Interpret line from server; if appropriate, send PONG to server or write message to appropriate outfile.
   char *argv[TOK_LAST], *cmd = NULL, *p = NULL, buf2[PIPE_BUF];
   int i;
-  if(!buf || *buf=='\0')
-    return;
   for(i = 0; i < TOK_LAST; i++)
     argv[i] = NULL;
+
+  if(!buf || *buf=='\0')
+    return;
 
   // Copy unmodified string into buf2[]/message[] -- to be used by print_out().
   for(i = 0; i < PIPE_BUF; ) {
