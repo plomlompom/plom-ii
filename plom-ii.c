@@ -288,11 +288,10 @@ static void handle_server_output() {
       break; }
 
   // Copy unmodified string into buf2[]/message[] -- to be used by print_out().
-  for(i = 0; i < PIPE_BUF; ) {
+  for(i = 0; i < PIPE_BUF; i++) {
     buf2[i] = buf[i];
     if (buf[i] == 0)
-      break;
-    i++; }
+      break; }
   snprintf(message, PIPE_BUF, "%s", buf2);
 
   // In TOK_CMD, save chunks separated by ' ' as tokens TOK_CMD, TOK_CHAN, TOK_ARG, TOK_TXT.
