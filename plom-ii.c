@@ -270,7 +270,7 @@ static void handle_channels_input(Channel *c) {
   write(irc, message, strlen(message)); }
 
 static void handle_server_output() {
-// Interpret line from server; if appropriate, send PONG to server or write message to appropriate outfile.
+// Interpret line from server; write message to appropriate outfile.
   char *argv[TOK_LAST], *cmd = NULL, *p = NULL, buf[PIPE_BUF], buf2[PIPE_BUF];
   int i;
   for(i = 0; i < TOK_LAST; i++)
