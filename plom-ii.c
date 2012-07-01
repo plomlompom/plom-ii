@@ -290,8 +290,12 @@ static void proc_server_cmd(char *buf) {
   // In TOK_CMD, save chunks separated by ' ' as tokens TOK_CMD, [TOK_CHAN], [TOK_ARG], [TOK_TXT]. 
   tokenize(&argv[TOK_CMD], TOK_LAST - TOK_CMD, cmd, ' ');
 
-  // Write message to (if token provided) channel/user!=nick or to server outfile.
-  if(!argv[TOK_CHAN] || !strncmp(argv[TOK_CHAN], nick, strlen(nick)) || *argv[TOK_CHAN] == '*')
+  // Correct wrong tokens.
+  if (!strncmp(argv[TOK_CHAN], nick, strlen(nick)) || *argv[TOK_CHAN] == '*')
+    *argv[TOK_CHAN] = 0;
+
+  // Write message to (if token provided) channel/user or to server outfile.
+  if(!argv[TOK_CHAN])
     print_out(0, message);
   else
     print_out(argv[TOK_CHAN], message); }
