@@ -245,94 +245,12 @@ static void print_out(char *channel, char *buf) {
   fprintf(out, "%s %s\n", buft, buf);
   fclose(out); }
 
-static void proc_channels_privmsg(char *channel, char *buf) {
-// Translate buf[] into message to channel/user, write to outfile and socket.
-  snprintf(message, PIPE_BUF, "<%s> %s", nick, buf);
-  print_out(channel, message);
-  snprintf(message, PIPE_BUF, "PRIVMSG %s :%s\r\n", channel, buf);
-  write(irc, message, strlen(message)); }
-
 static void proc_channels_input(Channel *c, char *buf) {
-// Translate buf[] to message to write to socket; interpret commands and act accordingly.
-  char *p = NULL;
-
-  // Treat legal lines not starting with '/' as messages directly to a channel / user.
-  if(buf[0] != '/' && buf[0] != 0) {
-    proc_channels_privmsg(c->name, buf);
-    return; }
-
-  // Legal messages will start with anything but a null byte.
-  message[0] = '\0';
-
-  // Handle ii-specific single char commands.
-  if(buf[2] == ' ' || buf[2] == '\0')
-    switch (buf[1]) {
-
-      // Either "JOIN" a channel or send a message to another user.
-      case 'j':
-        p = strchr(&buf[3], ' ');
-        if(p)
-          *p = 0;
-        if((buf[3]=='#')||(buf[3]=='&')||(buf[3]=='+')||(buf[3]=='!')){
-          if(p)
-            snprintf(message, PIPE_BUF, "JOIN %s %s\r\n", &buf[3], p + 1); /* password protected channel */
-          else
-            snprintf(message, PIPE_BUF, "JOIN %s\r\n", &buf[3]);
-          add_channel(&buf[3]); }
-        else {
-          if(p){
-            add_channel(&buf[3]);
-            proc_channels_privmsg(&buf[3], p + 1);
-            return; } }
-        break;
-
-      // Set channel topic via "TOPIC" command to server.
-      case 't':
-        if(strlen(buf)>=3)
-          snprintf(message, PIPE_BUF, "TOPIC %s :%s\r\n", c->name, &buf[3]);
-        break;
-
-      // Deliver "AWAY" to socket; only write to outfile if an away message is provided.
-      case 'a':
-        if(strlen(buf)>=3){
-          snprintf(message, PIPE_BUF, "-!- %s is away \"%s\"", nick, &buf[3]);
-          print_out(c->name, message); }
-        if(buf[2] == 0 || strlen(buf)<3) /* or used to make else part safe */
-          snprintf(message, PIPE_BUF, "AWAY\r\n");
-        else
-          snprintf(message, PIPE_BUF, "AWAY :%s\r\n", &buf[3]);
-        break;
-
-      // Change nick, towards ii process and via "NICK" command towards server.
-      case 'n':
-        if(strlen(buf)>=3){
-          snprintf(nick, sizeof(nick),"%s", &buf[3]);
-          snprintf(message, PIPE_BUF, "NICK %s\r\n", &buf[3]); }
-        break;
-
-      // Leave channel via "PART"; provide ii default leave message; remove channel.
-      case 'l':
-        if(c->name[0] == 0)
-          return;
-        if(buf[2] == ' ' && strlen(buf)>=3)
-          snprintf(message, PIPE_BUF, "PART %s :%s\r\n", c->name, &buf[3]);
-        else
-          snprintf(message, PIPE_BUF,"PART %s :ii - 500 SLOC are too much\r\n", c->name);
-        write(irc, message, strlen(message));
-        close(c->fd);
-        rm_channel(c);
-        return;
-
-  // Anything not defined by ii as a known command gets written to message[] directly.
-      default:
-        snprintf(message, PIPE_BUF, "%s\r\n", &buf[1]);
-        break; }
-  else
-    snprintf(message, PIPE_BUF, "%s\r\n", &buf[1]);
-
-  // Write legal message to socket.
-  if (message[0] != '\0')
-    write(irc, message, strlen(message)); }
+// Translate buf[] into message to channel/user, write to outfile and socket.
+  snprintf(message, PIPE_BUF, "> %s", buf);
+  print_out(0, message);
+  snprintf(message, PIPE_BUF, "%s\r\n", buf);
+  write(irc, message, strlen(message)); }
 
 static void proc_server_cmd(char *buf) {
 // Interpret line from server; if appropriate, send PONG to server or write message to appropriate outfile.
