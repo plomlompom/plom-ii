@@ -241,7 +241,7 @@ static void print_out(char *channel, char *buf) {
     add_channel(channel);
 
   // Finish by printing out buf[], prefixed with localtime string.
-  strftime(buft, sizeof(buft), "%F %R", localtime(&t));
+  strftime(buft, sizeof(buft), "%F %T", localtime(&t));
   fprintf(out, "%s %s\n", buft, buf);
   fclose(out); }
 
