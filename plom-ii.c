@@ -271,7 +271,7 @@ static void handle_channels_input(Channel *c) {
 
 static void handle_server_output() {
 // Interpret line from server; write message to appropriate outfile.
-  char *argv[TOK_LAST], *cmd = NULL, *p = NULL, buf[PIPE_BUF], buf2[PIPE_BUF];
+  char *argv[TOK_LAST], *p = NULL, buf[PIPE_BUF], buf2[PIPE_BUF];
   int i;
   for(i = 0; i < TOK_LAST; i++)
     argv[i] = NULL;
