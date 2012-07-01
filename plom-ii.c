@@ -221,7 +221,7 @@ static size_t tokenize(char **result, size_t reslen, char *str, char delim) {
 
 static void print_out(char *channel, char *buf) {
 // Append buf[] to appropriate out file, prefixed with localtime string.
-  static char outfile[256], server[256], buft[18];
+  static char outfile[256], server[256], buft[20];
   FILE *out = NULL;
   time_t t = time(0);
 
