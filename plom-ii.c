@@ -250,20 +250,22 @@ static void proc_server_cmd(char *buf) {
   int i;
   for(i = 0; i < TOK_LAST; i++)
     argv[i] = NULL;
-
   if(!buf || *buf=='\0')
     return;
+
+  // Replace '\r' with '\0'.
+  for(p = buf; p && *p != 0; p++)
+    if(*p == '\r') {
+      *p = 0;
+      break; }
 
   // Copy unmodified string into buf2[]/message[] -- to be used by print_out().
   for(i = 0; i < PIPE_BUF; ) {
     buf2[i] = buf[i];
+    if (buf[i] == 0)
+      break;
     i++; }
   snprintf(message, PIPE_BUF, "%s", buf2);
-
-  // Replace '\r' with '\0'.
-  for(p = buf; p && *p != 0; p++)
-    if(*p == '\r')
-      *p = 0;
 
   // In TOK_CMD, save chunks separated by ' ' as tokens TOK_CMD, TOK_CHAN, TOK_ARG, TOK_TXT.
   tokenize(&argv[TOK_START], TOK_LAST - TOK_START, buf, ' ');
