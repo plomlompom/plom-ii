@@ -285,7 +285,7 @@ static void proc_server_cmd(char *buf) {
     *p = 0;
     argv[TOK_TEXT] = ++p; }
 
-  // In TOK_CMD, save chunks separated by ' ' as tokens TOK_CMD, [TOK_CHAN], [TOK_ARG], [TOK_TXT]. 
+  // In TOK_CMD, save chunks separated by ' ' as tokens TOK_CMD, TOK_CHAN, TOK_ARG, TOK_TXT.
   tokenize(&argv[TOK_CMD], TOK_LAST - TOK_CMD, cmd, ' ');
 
   // Correct wrong tokens.
