@@ -289,11 +289,15 @@ static void proc_server_cmd(char *buf) {
   tokenize(&argv[TOK_CMD], TOK_LAST - TOK_CMD, cmd, ' ');
 
   // Correct wrong tokens.
-  if (!strncmp(argv[TOK_CHAN], nick, strlen(nick)) || *argv[TOK_CHAN] == '*')
+  if (*argv[TOK_CHAN] == '*' ||
+      !strncmp(argv[TOK_CHAN], nick, strlen(nick)) ||
+      !strncmp(argv[TOK_CMD], "PONG", 4))
     *argv[TOK_CHAN] = 0;
-  else if (!strncmp(argv[TOK_CMD], "353", 3))
+  if (!strncmp(argv[TOK_CMD], "333", 3) ||
+      !strncmp(argv[TOK_CMD], "353", 3))
     argv[TOK_CHAN] = argv[TOK_ARG1];
-  else if (!strncmp(argv[TOK_CMD], "366", 3))
+  else if (!strncmp(argv[TOK_CMD], "332", 3) ||
+           !strncmp(argv[TOK_CMD], "366", 3))
     argv[TOK_CHAN] = argv[TOK_ARG0];
 
   // Write message to (if token provided) channel/user or to server outfile.
