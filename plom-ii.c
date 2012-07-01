@@ -33,7 +33,7 @@
 #endif
 #define PING_TIMEOUT 300
 #define SERVER_PORT 6667
-enum { TOK_NICKSRV = 0, TOK_USER, TOK_CMD, TOK_CHAN, TOK_ARG, TOK_TEXT, TOK_LAST };
+enum { TOK_NICKSRV = 0, TOK_USER, TOK_CMD, TOK_CHAN, TOK_ARG0, TOK_ARG1, TOK_TEXT, TOK_LAST };
 
 typedef struct Channel Channel;
 struct Channel {
@@ -200,13 +200,11 @@ static size_t tokenize(char **result, size_t reslen, char *str, char delim) {
   // Move pointer to first non-whitespace in str[].
   for(n = str; *n == ' '; n++);
 
-  // Replace delim chars, save chunk pointers in result[]. Not sure what the workaround does.
+  // Replace delim chars, save chunk pointers in result[].
   p = n;
   for(i = 0; *n != 0;) {
     if(i == reslen)
       return 0;
-    if(i > TOK_CHAN - TOK_CMD && strtol(result[0], NULL, 10) > 0)
-      delim=':'; /* workaround non-RFC compliant messages */
     if(*n == delim) {
       *n = 0;
       result[i++] = p;
@@ -293,6 +291,10 @@ static void proc_server_cmd(char *buf) {
   // Correct wrong tokens.
   if (!strncmp(argv[TOK_CHAN], nick, strlen(nick)) || *argv[TOK_CHAN] == '*')
     *argv[TOK_CHAN] = 0;
+  else if (!strncmp(argv[TOK_CMD], "353", 3))
+    argv[TOK_CHAN] = argv[TOK_ARG1];
+  else if (!strncmp(argv[TOK_CMD], "366", 3))
+    argv[TOK_CHAN] = argv[TOK_ARG0];
 
   // Write message to (if token provided) channel/user or to server outfile.
   if(!argv[TOK_CHAN])
