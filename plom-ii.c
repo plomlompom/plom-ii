@@ -313,12 +313,12 @@ static void handle_server_output() {
   if (!strncmp(argv[TOK_CMD], "JOIN", 4) ||
       !strncmp(argv[TOK_CMD], "PRIVMSG", 7))
     print_out(argv[TOK_ARG0], message);
-  else if (!strncmp(argv[TOK_CMD], "353", 3))
-    print_out(argv[TOK_ARG2], message);
   else if (!strncmp(argv[TOK_CMD], "332", 3) ||
            !strncmp(argv[TOK_CMD], "333", 3) ||
            !strncmp(argv[TOK_CMD], "366", 3))
     print_out(argv[TOK_ARG1], message);
+  else if (!strncmp(argv[TOK_CMD], "353", 3))
+    print_out(argv[TOK_ARG2], message);
   else
     print_out(0, message); }
 
