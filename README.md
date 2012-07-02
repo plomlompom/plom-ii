@@ -7,5 +7,5 @@ Some goals:
 - show seconds, not only hours:minutes, for each message (DONE)
 - promptly remove infiles for parted channels (DONE)
 - replace special client commands with raw communication with IRC server (DONE)
-  - to do: /some/ interpretation of commands dependent on being sent to channel
-    infile
+  - to do: make input interpretation dependent on which infile is used, i.e.
+    allow leaving out channel/user field for those, and, possibly, PRIVMSG
