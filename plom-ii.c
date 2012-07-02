@@ -61,11 +61,11 @@ static void usage() {
   exit(EXIT_SUCCESS); }
 
 static char *striplower(char *s) {
-// Lowercase chars in s[]; replace '/' with '_'.
+// Lowercase chars in s[]; replace '/' with ','.
   char *p = NULL;
   for(p = s; p && *p; p++) {
     if(*p == '/')
-      *p = '_';
+      *p = ',';
     *p = tolower(*p); }
   return s; }
 
