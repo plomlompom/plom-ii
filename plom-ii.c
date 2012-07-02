@@ -306,12 +306,11 @@ static void handle_server_output() {
         break;
     rm_channel(c);
     snprintf(infile, 256, "%s/%s/in", path, argv[TOK_ARG0]);
-    unlink(infile);
-    return; }
+    unlink(infile); }
 
   // Write message to channel/user outfile for appropriate commands, else to server outfile.
-  if (!strncmp(argv[TOK_CMD], "JOIN", 4) ||
-      !strncmp(argv[TOK_CMD], "PRIVMSG", 7))
+  else if (!strncmp(argv[TOK_CMD], "JOIN", 4) ||
+           !strncmp(argv[TOK_CMD], "PRIVMSG", 7))
     print_out(argv[TOK_ARG0], message);
   else if (!strncmp(argv[TOK_CMD], "332", 3) ||
            !strncmp(argv[TOK_CMD], "333", 3) ||
