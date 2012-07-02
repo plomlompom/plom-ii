@@ -26,7 +26,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#define VERSION "0.1"
+#define VERSION "0.2"
 
 #ifndef PIPE_BUF /* FreeBSD don't know PIPE_BUF */
 #define PIPE_BUF 4096
