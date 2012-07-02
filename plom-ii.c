@@ -26,7 +26,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#define VERSION "1.6-plom"
+#define VERSION "0.1"
 
 #ifndef PIPE_BUF /* FreeBSD don't know PIPE_BUF */
 #define PIPE_BUF 4096
@@ -53,8 +53,9 @@ static void usage() {
 // Print help message.
   fprintf(stderr, "%s",
           "plom-ii - plomlompom's ii fork - " VERSION "\n"
-          "(C)opyright MMV-MMVI Anselm R. Garbe\n"
-          "(C)opyright MMV-MMXI Nico Golde\n"
+          "(c)opyright MMV-MMVI Anselm R. Garbe\n"
+          "(c)opyright MMV-MMXI Nico Golde\n"
+          "(c)opyright MMXII    Christian Heller\n"
           "usage: ii [-i <irc dir>] [-s <host>] [-p <port>]\n"
           "          [-n <nick>] [-k <password>] [-f <fullname>]\n");
   exit(EXIT_SUCCESS); }
