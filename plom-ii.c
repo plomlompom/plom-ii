@@ -33,7 +33,7 @@
 #endif
 #define PING_TIMEOUT 300
 #define SERVER_PORT 6667
-enum { TOK_CHAN = 0, TOK_START, TOK_CMD, TOK_ARG0, TOK_ARG1, TOK_ARG2, TOK_LAST };
+enum { TOK_START = 0, TOK_CMD, TOK_ARG0, TOK_ARG1, TOK_ARG2, TOK_LAST };
 
 typedef struct Channel Channel;
 struct Channel {
@@ -309,20 +309,16 @@ static void handle_server_output() {
     unlink(infile);
     return; }
 
-  // Set TOK_CHAN for certain TOK_CMDs from one of ARG[0-2].
+  // Write message to channel/user outfile for appropriate commands, else to server outfile.
   if (!strncmp(argv[TOK_CMD], "JOIN", 4) ||
       !strncmp(argv[TOK_CMD], "PRIVMSG", 7))
-    argv[TOK_CHAN] = argv[TOK_ARG0];
+    print_out(argv[TOK_ARG0], message);
   else if (!strncmp(argv[TOK_CMD], "353", 3))
-    argv[TOK_CHAN] = argv[TOK_ARG2];
+    print_out(argv[TOK_ARG2], message);
   else if (!strncmp(argv[TOK_CMD], "332", 3) ||
            !strncmp(argv[TOK_CMD], "333", 3) ||
            !strncmp(argv[TOK_CMD], "366", 3))
-    argv[TOK_CHAN] = argv[TOK_ARG1];
-
-  // Write message to (if token provided) channel/user or to server outfile.
-  if(argv[TOK_CHAN])
-    print_out(argv[TOK_CHAN], message);
+    print_out(argv[TOK_ARG1], message);
   else
     print_out(0, message); }
 
