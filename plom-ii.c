@@ -308,9 +308,19 @@ static void handle_server_output() {
     snprintf(infile, 256, "%s/%s/in", path, argv[TOK_ARG0]);
     unlink(infile); }
 
+  // For PRIVMSG queries, the outfile channel name is taken from TOK_START.
+  else if (!strncmp(argv[TOK_CMD], "PRIVMSG", 7))
+    if (!strncmp(argv[TOK_ARG0], nick, sizeof(nick))) {
+      for(p = argv[TOK_START]; *p; p++)
+        if(*p == '!') {
+          *p = 0;
+           break; } 
+      print_out(argv[TOK_START] + 1, message); }
+    else
+      print_out(argv[TOK_ARG0], message);
+
   // Write message to channel/user outfile for appropriate commands, else to server outfile.
-  else if (!strncmp(argv[TOK_CMD], "JOIN", 4) ||
-           !strncmp(argv[TOK_CMD], "PRIVMSG", 7))
+  else if (!strncmp(argv[TOK_CMD], "JOIN", 4))
     print_out(argv[TOK_ARG0], message);
   else if (!strncmp(argv[TOK_CMD], "332", 3) ||
            !strncmp(argv[TOK_CMD], "333", 3) ||
