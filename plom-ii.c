@@ -52,7 +52,7 @@ static char message[PIPE_BUF]; /* message buf used for communication */
 static void usage() {
 // Print help message.
   fprintf(stderr, "%s",
-          "ii - irc it - " VERSION "\n"
+          "plom-ii - plomlompom's ii fork - " VERSION "\n"
           "(C)opyright MMV-MMVI Anselm R. Garbe\n"
           "(C)opyright MMV-MMXI Nico Golde\n"
           "usage: ii [-i <irc dir>] [-s <host>] [-p <port>]\n"
@@ -96,7 +96,7 @@ static int get_filepath(char *filepath, size_t len, char *channel, char *file) {
 static void create_filepath(char *filepath, size_t len, char *channel, char *suffix) {
 // get_filepath() for file below striplower()'d channel name.
   if(!get_filepath(filepath, len, striplower(channel), suffix)) {
-    fprintf(stderr, "%s", "ii: path to irc directory too long\n");
+    fprintf(stderr, "%s", "plom-ii: path to irc directory too long\n");
     exit(EXIT_FAILURE); } }
 
 static int open_channel(char *name) {
@@ -121,13 +121,13 @@ static void add_channel(char *cname) {
   // Try to create channel fifo infile.
   fd = open_channel(name);
   if(fd == -1) {
-    printf("ii: exiting, cannot create in channel: %s\n", name);
+    printf("plom-ii: exiting, cannot create in channel: %s\n", name);
     exit(EXIT_FAILURE); }
 
   // Allocate memory for new Channel struct.
   c = calloc(1, sizeof(Channel));
   if(!c) {
-    perror("ii: cannot allocate memory");
+    perror("plom-ii: cannot allocate memory");
     exit(EXIT_FAILURE); }
 
   // Prepend new channel struct to channels chain.
@@ -174,7 +174,7 @@ static int tcpopen(unsigned short port) {
   // Write host address into sin.
   struct hostent *hp = gethostbyname(host);
   if(!hp) {
-    perror("ii: cannot retrieve host information");
+    perror("plom-ii: cannot retrieve host information");
     exit(EXIT_FAILURE); }
   memcpy(&sin.sin_addr, hp->h_addr, hp->h_length);
 
@@ -183,10 +183,10 @@ static int tcpopen(unsigned short port) {
 
   // Build/connect socket.
   if((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    perror("ii: cannot create socket");
+    perror("plom-ii: cannot create socket");
     exit(EXIT_FAILURE); }
   if(connect(fd, (const struct sockaddr *) &sin, sizeof(sin)) < 0) {
-    perror("ii: cannot connect to host");
+    perror("plom-ii: cannot connect to host");
     exit(EXIT_FAILURE); }
   return fd; }
 
@@ -278,7 +278,7 @@ static void handle_server_output() {
 
   // Try to read line from socket.
   if(read_line(irc, PIPE_BUF, buf) == -1) {
-    perror("ii: remote host closed connection");
+    perror("plom-ii: remote host closed connection");
     exit(EXIT_FAILURE); }
 
   // Replace '\r' with '\0'.
@@ -357,7 +357,7 @@ static void run() {
     if(r < 0) {
       if(errno == EINTR)
         continue;
-      perror("ii: error on select()");
+      perror("plom-ii: error on select()");
       exit(EXIT_FAILURE); }
 
     // If select() time-outs, check for ping timeout, ping to socket. 
@@ -385,7 +385,7 @@ int main(int argc, char *argv[]) {
   // Derive nickname and prefix from getpwuid(getuid()).
   struct passwd *spw = getpwuid(getuid());
   if(!spw) {
-    fprintf(stderr,"ii: getpwuid() failed\n");
+    fprintf(stderr,"plom-ii: getpwuid() failed\n");
     exit(EXIT_FAILURE); }
   snprintf(nick, sizeof(nick), "%s", spw->pw_name);
   snprintf(prefix, sizeof(prefix),"%s/irc", spw->pw_dir);
@@ -410,7 +410,7 @@ int main(int argc, char *argv[]) {
 
   // Set and, if necessary, create path: homedir prefix + "/" + host.
   if(!snprintf(path, sizeof(path), "%s/%s", prefix, host)) {
-    fprintf(stderr, "%s", "ii: path to irc directory too long\n");
+    fprintf(stderr, "%s", "plom-ii: path to irc directory too long\n");
     exit(EXIT_FAILURE); }
   create_dirtree(path);
 
