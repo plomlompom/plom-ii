@@ -4,6 +4,8 @@ plom-ii
 plomlompom's fork of suckless' ii (<http://tools.suckless.org/ii/>).
 
 Some goals:
+- translate slashes in channel names to "," instead of "_" (to allow channel
+  names with "_" in them)
 - show seconds, not only hours:minutes, for each message (DONE)
 - promptly remove infiles for parted channels (DONE)
 - replace special client commands with raw communication with IRC server (DONE)
