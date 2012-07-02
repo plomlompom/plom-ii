@@ -309,10 +309,10 @@ static void handle_server_output() {
     argv[TOK_CHAN] = argv[TOK_ARG1];
 
   // Write message to (if token provided) channel/user or to server outfile.
-  if(!argv[TOK_CHAN])
-    print_out(0, message);
+  if(argv[TOK_CHAN])
+    print_out(argv[TOK_CHAN], message);
   else
-    print_out(argv[TOK_CHAN], message); }
+    print_out(0, message); }
 
 static void run() {
 // Repeatedly check socket and fifo descriptors, handle input / output.
