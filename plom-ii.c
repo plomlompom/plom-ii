@@ -293,7 +293,7 @@ static void handle_server_output() {
     if (buf[i] == 0)
       break; }
 
-  // In TOK_CMD, save chunks separated by ' ' as tokens TOK_CMD, TOK_CHAN, TOK_ARG, TOK_TXT.
+  // In TOK_CMD, save chunks separated by ' ' as tokens TOK_START, TOK_CMD, TOK_ARG{0,1,2}.
   tokenize(&argv[TOK_START], TOK_LAST - TOK_START, buf, ' ');
 
   // For PART, *first* print message, *then* remove channel from channel chain and delete its infile.
