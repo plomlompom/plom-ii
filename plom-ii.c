@@ -271,10 +271,7 @@ static void handle_channels_input(Channel *c) {
 
 static void handle_server_output() {
 // Interpret line from server; write message to appropriate outfile.
-  char *argv[TOK_LAST], *p = NULL, buf[PIPE_BUF];
-  int i;
-  for(i = 0; i < TOK_LAST; i++)
-    argv[i] = NULL;
+  char *argv[TOK_LAST], *p, buf[PIPE_BUF];
 
   // Try to read line from socket.
   if(read_line(irc, PIPE_BUF, buf) == -1) {
@@ -288,6 +285,7 @@ static void handle_server_output() {
       break; }
 
   // Copy unmodified string into message[] -- to be used by print_out().
+  int i;
   for(i = 0; i < PIPE_BUF; i++) {
     message[i] = buf[i];
     if (buf[i] == 0)
