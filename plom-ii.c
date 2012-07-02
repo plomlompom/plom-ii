@@ -5,7 +5,7 @@
 // (c)opyright 2012 Christian Heller <c.heller@plomlompom.de>
 // 
 // All work from the *original* ii as shown in the file ii.c is also covered by
-// the MIT/X Consortium License (see file LICENSE.old) and these copyrights:
+// the MIT/X Consortium License (see file LICENSE.old) and copyrighted thus:
 // (c)opyright 2005-2006 Anselm R. Garbe <garbeam@wmii.de>
 // (c)opyright 2005-2008 Nico Golde <nico at ngolde dot de>
 
