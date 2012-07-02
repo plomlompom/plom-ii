@@ -296,9 +296,21 @@ static void handle_server_output() {
   // In TOK_CMD, save chunks separated by ' ' as tokens TOK_CMD, TOK_CHAN, TOK_ARG, TOK_TXT.
   tokenize(&argv[TOK_START], TOK_LAST - TOK_START, buf, ' ');
 
+  // For PART, *first* print message, *then* remove channel from channel chain and delete its infile.
+  if (!strncmp(argv[TOK_CMD], "PART", 4)) {
+    Channel *c;
+    char infile[256];
+    print_out(argv[TOK_ARG0], message);
+    for(c = channels; c; c = c->next)
+      if(!strcmp(argv[TOK_ARG0], c->name))
+        break;
+    rm_channel(c);
+    snprintf(infile, 256, "%s/%s/in", path, argv[TOK_ARG0]);
+    unlink(infile);
+    return; }
+
   // Set TOK_CHAN for certain TOK_CMDs from one of ARG[0-2].
   if (!strncmp(argv[TOK_CMD], "JOIN", 4) ||
-      !strncmp(argv[TOK_CMD], "PART", 4) ||
       !strncmp(argv[TOK_CMD], "PRIVMSG", 7))
     argv[TOK_CHAN] = argv[TOK_ARG0];
   else if (!strncmp(argv[TOK_CMD], "353", 3))
