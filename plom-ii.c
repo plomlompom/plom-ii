@@ -313,7 +313,7 @@ static void handle_server_output() {
       for(p = argv[TOK_START]; *p; p++)
         if(*p == '!') {
           *p = 0;
-           break; } 
+          break; } 
       print_out(argv[TOK_START] + 1, message); }
     else
       print_out(argv[TOK_ARG0], message);
