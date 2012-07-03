@@ -10,4 +10,4 @@ Some goals:
 - promptly remove infiles for parted channels (DONE)
 - replace special client commands with raw communication with IRC server (DONE)
   - to do: make input interpretation dependent on which infile is used, i.e.
-    allow leaving out channel/user field for those, and, possibly, PRIVMSG
+    allow leaving out channel/user field for those, and, possibly, PRIVMSGs.
