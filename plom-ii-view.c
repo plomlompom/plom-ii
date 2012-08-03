@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 int main (int argc, char *argv[]) {
 
@@ -28,7 +29,11 @@ int main (int argc, char *argv[]) {
 
   int y, x, l, key, start = 0;
   char line[1024], end = 0;
+  struct stat s;
+  stat(argv[1], &s);
+  int mtime = s.st_mtime;
   while (1) {
+    stat(argv[1], &s);
 
     fseek(file, start, 0);
     for (y = 0; y < rows; y++) {
@@ -83,7 +88,22 @@ int main (int argc, char *argv[]) {
             break; } }
         if (!y)
           break;
-        start = l; } } }
+        start = l; } }
+
+    else if (mtime != s.st_mtime) {
+      mtime = s.st_mtime;
+      l = start;
+      for (x = 0; ; x++) {
+        fseek(file, l, 0);
+        for (y = 0; y < rows; y++) {
+          if (y == 1)
+            l = ftell(file);
+          if (!fgets(line, 1024, file)) {
+            y = 0;
+            break; } }
+          if (!y)
+            break;
+          start = l; } } }
 
   endwin();
   exit(0); }
